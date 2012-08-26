@@ -1,0 +1,67 @@
+#!/usr/bin/env /usr/local/bin/node
+var fs = require('fs'),
+  path = require('path'),
+  child_process = require('child_process'),
+  glob = require('glob'),
+  winston = require('winston'),
+  watched_filepaths = [],
+  config_path = path.join(process.env.HOME, '.less-watch'),
+  logfile = path.join(process.env.HOME, 'Library', 'Logs', 'less-watch.log')
+  logger = new (winston.Logger)({
+    transports: [
+      new (winston.transports.Console)(),
+      new (winston.transports.File)({ filename: logfile })
+    ]
+  });
+
+function reload() {
+  logger.info(watched_filepaths.length ? "Reloading" : "Loading");
+  watched_filepaths.forEach(function(filepath) {
+    fs.unwatchFile(filepath);
+  });
+  watched_filepaths = [];
+
+  // "restart" is a special action keyword
+  watch(config_path, 'restart');
+  fs.readFile(config_path, 'utf8', function (err, data) {
+    if (err) throw err;
+    data.split(/\n+/g).forEach(function(line) {
+      var parts = line.split(/\s*:\s*/g);
+      if (parts[0] && parts[1])
+        watch(parts[0], parts[1]);
+    });
+  });
+}
+
+function watch(globpath, action) {
+  glob(globpath, function(err, filepaths) {
+    // for single files, filepaths will just be one file: the exact match
+    filepaths.forEach(function(filepath) {
+      // for each file, decide on its command
+      var command = action.replace(/\{file\}/g, filepath).replace(/\{dir\}/g, path.dirname(filepath));
+      // save the filepath so that we can unwatch it easily when reloading, and start the watch
+      watched_filepaths.push(filepath);
+      fs.watchFile(filepath, {interval: 250}, function(curr, prev) {
+        // ignore simple accesses
+        if (curr.mtime.valueOf() != prev.mtime.valueOf() || curr.ctime.valueOf() != prev.ctime.valueOf()) {
+          if (command === 'restart') {
+            reload();
+          }
+          else {
+            logger.warn('> ' + filepath + ' changed.');
+            logger.warn('$ ' + command);
+            child_process.exec(command, function (error, stdout, stderr) {
+              logger.info('stdout: ' + stdout);
+              logger.info('stderr: ' + stderr);
+              if (error !== null) {
+                logger.error('exec error: ' + error);
+              }
+            });
+          }
+        }
+      });
+    });
+  });
+}
+
+reload();
