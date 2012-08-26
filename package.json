@@ -1,7 +1,7 @@
 {
-	"main": "./less-watch",
-  "bin": "./less-watch",
   "name": "less-watch",
+  "main": "./less-watch",
+  "bin": "./less-watch",
   "description": "Monitor changes to specified files or directories, run arbitrary scripts in response.",
   "homepage": "http://github.com/chbrown/less-watch",
   "repository": {
@@ -9,7 +9,7 @@
     "url": "http://github.com/chbrown/less-watch.git"
   },
   "keywords": ["child_process", "restart", "reload", "changes", "development"],
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Christopher Brown <io@henrian.com>",
   "dependencies": {
     "glob": "*",
