@@ -38,7 +38,11 @@ function watch(globpath, action) {
     // for single files, filepaths will just be one file: the exact match
     filepaths.forEach(function(filepath) {
       // for each file, decide on its command
-      var command = action.replace(/\{file\}/g, filepath).replace(/\{dir\}/g, path.dirname(filepath));
+      var ext = filepath.match(/(\.\w+)?$/)[1],
+        command = action.
+        replace(/\{file\}/g, filepath).
+        replace(/\{basename\}/g, path.basename(filepath, ext)).
+        replace(/\{dirname\}/g, path.dirname(filepath));
       // save the filepath so that we can unwatch it easily when reloading, and start the watch
       watched_filepaths.push(filepath);
       fs.watchFile(filepath, {interval: 250}, function(curr, prev) {
