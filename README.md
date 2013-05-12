@@ -11,7 +11,20 @@ remote servers, so the files are only accessible when I have sshfs connected,
 but I don't want to have to run something to tell my LESS compiler that it
 should retry the filepath in question.
 
-(This particular feature is not actually in 0.0.1, by the way. It's planned.)
+(This particular feature is not actually in 0.0.2, by the way. It's planned.)
+
+## Installation
+
+For Mac OS X:
+
+    # cd into this directory
+    touch ~/.less-watch
+    ./install
+
+This will add the `LessWatch.app` application to the list of applications in your "login items,"
+so that it gets started automatically.
+
+After running `./install`, either restart your computer or double click `LessWatch.app`.
 
 ## `~/.less-watch` format
 
@@ -27,9 +40,9 @@ The command on the right will have the following keywords available:
 
 ## `~/.less-watch` example
 
-/Users/chbrown/work/mailmaster/static/css/site.less: cd {dirname} && lessc -C site.less site.css
-/Volumes/sshfs_drive/app4/static/*.less: cd {dirname} && lessc -C {basename}.less {basename}.css
+    /Users/chbrown/work/mailmaster/static/css/site.less: cd {dirname} && lessc -C site.less site.css
+    /Volumes/sshfs_drive/app4/static/*.less: cd {dirname} && lessc -C {basename}.less {basename}.css
 
 ## License
 
-MIT Licensed, 2012
+MIT Licensed, 2012-2013

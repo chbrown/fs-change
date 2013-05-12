@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-var path = require('path'),
-  exec = require('child_process').exec,
-  app_path = path.join(__dirname, 'LessWatch.app'),
-  command = "osascript -e 'tell application \"System Events\" to make login item at end with properties " +
-    "{path:\"" + app_path + "\", hidden:false}'";
+var path = require('path');
+var child_process = require('child_process');
+var app_path = path.join(__dirname, 'LessWatch.app');
 // command from http://hints.macworld.com/article.php?story=20111226075701552
+var command = "osascript -e 'tell application \"System Events\" to make login item at end with properties " +
+    "{path:\"" + app_path + "\", hidden:false}'";
 
-exec(command, function (error, stdout, stderr) {
+child_process.exec(command, function (error, stdout, stderr) {
   if (error !== null) {
     console.error('Install failed: ' + error);
     console.log('stdout: ' + stdout);

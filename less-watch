@@ -1,18 +1,18 @@
 #!/usr/bin/env /usr/local/bin/node
-var fs = require('fs'),
-  path = require('path'),
-  child_process = require('child_process'),
-  glob = require('glob'),
-  winston = require('winston'),
-  watched_filepaths = [],
-  config_path = path.join(process.env.HOME, '.less-watch'),
-  logfile = path.join(process.env.HOME, 'Library', 'Logs', 'less-watch.log')
-  logger = new (winston.Logger)({
-    transports: [
-      new (winston.transports.Console)(),
-      new (winston.transports.File)({ filename: logfile })
-    ]
-  });
+var fs = require('fs');
+var path = require('path');
+var child_process = require('child_process');
+var glob = require('glob');
+var winston = require('winston');
+var watched_filepaths = [];
+var config_path = path.join(process.env.HOME, '.less-watch');
+var logfile = path.join(process.env.HOME, 'Library', 'Logs', 'less-watch.log');
+var logger = new (winston.Logger)({
+  transports: [
+    new (winston.transports.Console)(),
+    new (winston.transports.File)({ filename: logfile })
+  ]
+});
 
 function reload() {
   logger.info(watched_filepaths.length ? "Reloading" : "Loading");
@@ -55,8 +55,8 @@ function watch(globpath, action) {
             logger.warn('> ' + filepath + ' changed.');
             logger.warn('$ ' + command);
             child_process.exec(command, function (error, stdout, stderr) {
-              logger.info('stdout: ' + stdout);
-              logger.info('stderr: ' + stderr);
+              if (stdout) logger.info('stdout: ' + stdout);
+              if (stderr) logger.info('stderr: ' + stdout);
               if (error !== null) {
                 logger.error('exec error: ' + error);
               }
