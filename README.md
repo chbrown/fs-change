@@ -15,7 +15,7 @@ should retry the filepath in question.
 
 ## Installation
 
-For Mac OS X:
+### Under Mac OS X:
 
     # cd into this directory
     touch ~/.less-watch
@@ -25,6 +25,19 @@ This will add the `LessWatch.app` application to the list of applications in you
 so that it gets started automatically.
 
 After running `./install`, either restart your computer or double click `LessWatch.app`.
+
+### Under Linux
+
+	# cd into this directory
+	touch ~/.less-watch
+	sudo ./install
+
+ - This will add a `less-watch` to the `/etc/init.d` directory, which allows less-watch to work like a daemon.
+ - It can be easily started/stopped using `/etc/init.d/less-watch start/stop`.
+ - `install` automatically starts less-watch during it's execution.
+
+
+Tested with Ubuntu 13.04, but it should work on other Linux systems that use startup scripts in /etc/init.d (Debian, Redhat, CentOS, Gentoo, etc).
 
 ## `~/.less-watch` format
 
