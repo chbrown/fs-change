@@ -6,7 +6,13 @@ var glob = require('glob');
 var winston = require('winston');
 var watched_filepaths = [];
 var config_path = path.join(process.env.HOME, '.less-watch');
-var logfile = path.join(process.env.HOME, 'Library', 'Logs', 'less-watch.log');
+var logfile = (function() { 
+  var platform = process.platform;
+  if(!!process.platform.match(/darwin/)) 
+    return path.join(process.env.HOME, 'Library', 'Logs', 'less-watch.log');
+  else
+    return path.join(process.env.HOME, '.less-watch.log');
+}());
 var logger = new (winston.Logger)({
   transports: [
     new (winston.transports.Console)(),
