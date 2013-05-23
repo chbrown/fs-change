@@ -24,34 +24,17 @@ if(!!process.platform.match(/darwin/)) {
       }
   });
 } else if(!!process.platform.match(/linux/)) {
-  if(typeof(process.env.SUDO_UID) === 'undefined') {
-    console.error("Under Linux, this script must be executed as root.");
+  if(typeof(process.env.SUDO_UID) !== 'undefined') {
+    console.error("Please do not run install as root.");
     return 1;
   }
   app_path = path.join(__dirname, "less-watch");
-  fs.readFile(__dirname + "/linux-daemon.template", function(err, data) {
-    if(err) {
-      // ?!
-      console.error(err);
-      return 1;
-    } else {
-      template = data.toString().replace("{{APP_DIR}}", __dirname);
-      fs.writeFile("/etc/init.d/less-watch", template, function(err) {
-        if(err) {
-          console.log(err);
-          return 1;
-        } else {
-          var command = "chmod +x /etc/init.d/less-watch && update-rc.d less-watch defaults && /etc/init.d/less-watch start";
-          child_process.exec(command, function(error, stdout, stderr) {
-            if(error !== null) {
-              console.error("Install failed: " + error);
-              console.error("stdout: " + stdout);
-              console.error("stderr:" + stderr);
-              return 1;
-            }
-          })
-        }
-      });
-    }
+  fs.appendFile(process.env.HOME + "/.profile", "\n" + app_path + "&\n", function(err) {
+      if(err) {
+        console.error(err);
+        return 1;
+      } else {
+        console.log("Done. Yay!");
+      }
   });
 }

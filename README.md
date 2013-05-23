@@ -11,7 +11,7 @@ remote servers, so the files are only accessible when I have sshfs connected,
 but I don't want to have to run something to tell my LESS compiler that it
 should retry the filepath in question.
 
-(This particular feature is not actually in 0.0.2, by the way. It's planned.)
+(This particular feature is not actually in 0.0.3, by the way. It's planned.)
 
 ## Installation
 
@@ -26,18 +26,15 @@ so that it gets started automatically.
 
 After running `./install`, either restart your computer or double click `LessWatch.app`.
 
-### Under Linux
+### Under Linux:
 
 	# cd into this directory
 	touch ~/.less-watch
-	sudo ./install
+	./install # note the lack of sudo here!
 
- - This will add a `less-watch` to the `/etc/init.d` directory, which allows less-watch to work like a daemon.
- - It can be easily started/stopped using `/etc/init.d/less-watch start/stop`.
- - `install` automatically starts less-watch during it's execution.
+This will append a new line on your ~/.profile.
 
-
-Tested with Ubuntu 13.04, but it should work on other Linux systems that use startup scripts in /etc/init.d (Debian, Redhat, CentOS, Gentoo, etc).
+Tested with Ubuntu 13.04, but it should work on other Linux systems that reads ~/.profile during the login process.
 
 ## `~/.less-watch` format
 
