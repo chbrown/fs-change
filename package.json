@@ -9,8 +9,14 @@
     "url": "http://github.com/chbrown/less-watch.git"
   },
   "keywords": ["child_process", "restart", "reload", "changes", "development"],
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Christopher Brown <io@henrian.com>",
+  "contributors": [
+    { 
+      "name": "Victor Gama",
+      "email": "victor@insitelabs.com.br"
+    }
+  ],
   "dependencies": {
     "glob": "*",
     "winston": "*"

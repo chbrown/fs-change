@@ -11,11 +11,11 @@ remote servers, so the files are only accessible when I have sshfs connected,
 but I don't want to have to run something to tell my LESS compiler that it
 should retry the filepath in question.
 
-(This particular feature is not actually in 0.0.2, by the way. It's planned.)
+(This particular feature is not actually in 0.0.3, by the way. It's planned.)
 
 ## Installation
 
-For Mac OS X:
+### Under Mac OS X:
 
     # cd into this directory
     touch ~/.less-watch
@@ -25,6 +25,16 @@ This will add the `LessWatch.app` application to the list of applications in you
 so that it gets started automatically.
 
 After running `./install`, either restart your computer or double click `LessWatch.app`.
+
+### Under Linux:
+
+	# cd into this directory
+	touch ~/.less-watch
+	./install # note the lack of sudo here!
+
+This will append a new line on your ~/.profile.
+
+Tested with Ubuntu 13.04, but it should work on other Linux systems that reads ~/.profile during the login process.
 
 ## `~/.less-watch` format
 
