@@ -45,4 +45,4 @@ The command on the right will have the following keywords available:
 
 ## License
 
-MIT Licensed, 2012-2013
+Copyright © 2012–2013 Christopher Brown. [MIT Licensed](LICENSE).
