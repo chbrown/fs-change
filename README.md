@@ -3,7 +3,9 @@
 Node process to monitor changes to specified files or directories, and execute
 some specified action in response.
 
-Settings are stored in `~/.less-watch`
+By default will read `~/.less-watch` settings.
+If a `.less-watch` file is in the directory where `less-watch` was started then this will be used insted of `~/.less-watch`.
+If an argument is passed, e.g. `less-watch my-config-file`, `my-config-file` will be used as config file.
 
 If some file does not exist, the script will continue to try the other files,
 and retry any inaccessible file every 60 seconds. I do a lot of development on

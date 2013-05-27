@@ -5,7 +5,16 @@ var child_process = require('child_process');
 var glob = require('glob');
 var winston = require('winston');
 var watched_filepaths = [];
-var config_path = path.join(process.env.HOME, '.less-watch');
+
+var config_path = null;
+if(process.argv instanceof Array && process.argv[2] && fs.existsSync(process.argv[2])){
+  config_path = process.argv[2];
+} else if(fs.existsSync(process.cwd()+"/.less-watch")){
+  config_path = process.cwd()+"/.less-watch";
+} else{
+  config_path = path.join(process.env.HOME, '.less-watch');
+}
+
 var logfile = path.join(process.env.HOME, 'Library', 'Logs', 'less-watch.log');
 var logger = new (winston.Logger)({
   transports: [
@@ -15,7 +24,7 @@ var logger = new (winston.Logger)({
 });
 
 function reload() {
-  logger.info(watched_filepaths.length ? "Reloading" : "Loading");
+  logger.info((watched_filepaths.length ? "Reloading " : "Loading ")+config_path);
   watched_filepaths.forEach(function(filepath) {
     fs.unwatchFile(filepath);
   });
