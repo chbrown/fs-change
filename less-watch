@@ -1,71 +1,96 @@
-#!/usr/bin/env /usr/local/bin/node
-var fs = require('fs');
-var path = require('path');
+#!/usr/bin/env node
+'use strict'; /*jslint node: true, es5: true, indent: 2 */
+var async = require('async');
 var child_process = require('child_process');
+var fs = require('fs');
 var glob = require('glob');
+var path = require('path');
 var winston = require('winston');
-var watched_filepaths = [];
-var config_path = path.join(process.env.HOME, '.less-watch');
-var logfile = path.join(process.env.HOME, 'Library', 'Logs', 'less-watch.log');
+var _ = require('underscore');
+
+var argv = require('optimist').default({
+  config: path.join(process.env.HOME, '.less-watch'),
+  log: path.join(process.env.HOME, 'Library', 'Logs', 'less-watch.log'),
+}).argv;
+
 var logger = new (winston.Logger)({
   transports: [
     new (winston.transports.Console)(),
-    new (winston.transports.File)({ filename: logfile })
+    new (winston.transports.File)({filename: argv.log})
   ]
 });
 
-function reload() {
-  logger.info(watched_filepaths.length ? "Reloading" : "Loading");
-  watched_filepaths.forEach(function(filepath) {
-    fs.unwatchFile(filepath);
+function watch(filepath, command_template) {
+  // for each file, interpolate its command
+  var command_context = {
+    file: filepath,
+    extname: path.extname(filepath),
+    basename: path.basename(filepath, path.extname(filepath)),
+    dirname: path.dirname(filepath)
+  };
+
+  var command = command_template.replace(/\{(.+?)\}/g, function(full_match, group_1) {
+    return command_context[group_1];
   });
-  watched_filepaths = [];
+
+  var changed = function(event) {
+    // TODO: check last modified stats?
+    logger.verbose('Saw ' + event + ' on ' + filepath);
+    // if (curr.mtime.valueOf() != prev.mtime.valueOf() ||
+    //   curr.ctime.valueOf() != prev.ctime.valueOf()) {
+    logger.info('$ ' + command);
+    child_process.exec(command, function (err, stdout, stderr) {
+      if (err) logger.error(err);
+      if (stdout) logger.info('stdout: ' + stdout);
+      if (stderr) logger.info('stderr: ' + stdout);
+    });
+  };
+  return fs.watch(filepath, _.debounce(changed, 2000, true));
+}
+
+var watchers = [];
+
+function readConfig() {
+  logger.info('Stopping ' + watchers.length + ' watchers');
+  watchers.forEach(function(watcher) { watcher.close(); });
+
+  logger.info('Reading config: ' + argv.config);
+  // watched_filepaths.length ? "Reloading" : "Loading");
 
   // "restart" is a special action keyword
-  watch(config_path, 'restart');
-  fs.readFile(config_path, 'utf8', function (err, data) {
-    if (err) throw err;
-    data.split(/\n+/g).forEach(function(line) {
-      var parts = line.split(/\s*:\s*/g);
-      if (parts[0] && parts[1])
-        watch(parts[0], parts[1]);
-    });
-  });
-}
+  // watch(config_path, 'restart');
+  fs.readFile(argv.config, 'utf8', function (err, data) {
+    if (err) logger.error(err);
 
-function watch(globpath, action) {
-  glob(globpath, function(err, filepaths) {
-    // for single files, filepaths will just be one file: the exact match
-    filepaths.forEach(function(filepath) {
-      // for each file, decide on its command
-      var ext = filepath.match(/(\.\w+)?$/)[1],
-        command = action.
-        replace(/\{file\}/g, filepath).
-        replace(/\{basename\}/g, path.basename(filepath, ext)).
-        replace(/\{dirname\}/g, path.dirname(filepath));
-      // save the filepath so that we can unwatch it easily when reloading, and start the watch
-      watched_filepaths.push(filepath);
-      fs.watchFile(filepath, {interval: 250}, function(curr, prev) {
-        // ignore simple accesses
-        if (curr.mtime.valueOf() != prev.mtime.valueOf() || curr.ctime.valueOf() != prev.ctime.valueOf()) {
-          if (command === 'restart') {
-            reload();
-          }
-          else {
-            logger.warn('> ' + filepath + ' changed.');
-            logger.warn('$ ' + command);
-            child_process.exec(command, function (error, stdout, stderr) {
-              if (stdout) logger.info('stdout: ' + stdout);
-              if (stderr) logger.info('stderr: ' + stdout);
-              if (error !== null) {
-                logger.error('exec error: ' + error);
-              }
-            });
-          }
-        }
+    var lines = data.trim().split(/\n+/g);
+    logger.info('Globbing ' + lines.length + ' patterns');
+
+    // we have a bunch of globs, we want to flatmap them all to a list of filepaths
+    async.map(lines, function(line, callback) {
+      var parts = line.match(/^(.+?):(.+)$/);
+      var pattern = parts[1].trim();
+      var command = parts[2].trim();
+      glob(pattern, function(err, filepaths) {
+        if (err) logger.error(err);
+        // for single files, filepaths will just be one file: the exact match
+        var watchers = filepaths.map(function(filepath) {
+          // zip up each filepath with the command that goes with its glob
+          return watch(filepath, command);
+        });
+        callback(null, watchers);
       });
+    }, function(err, watcherss) {
+      if (err) logger.error(err);
+      watchers = [].concat.apply([], watcherss);
+      logger.info('Created ' + watchers.length + ' watchers');
     });
   });
 }
 
-reload();
+var configChanged = function(event) {
+  logger.info('Config changed: ' + argv.config);
+  readConfig();
+};
+fs.watch(argv.config, _.debounce(configChanged, 2000, true));
+
+readConfig();

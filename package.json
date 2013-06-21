@@ -19,7 +19,10 @@
   "main": "./less-watch",
   "bin": "./less-watch",
   "dependencies": {
+    "async": "*",
     "glob": "*",
-    "winston": "*"
+    "optimist": "*",
+    "winston": "*",
+    "underscore": "*"
   }
 }
