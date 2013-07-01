@@ -55,10 +55,7 @@ function readConfig() {
   watchers.forEach(function(watcher) { watcher.close(); });
 
   logger.info('Reading config: ' + argv.config);
-  // watched_filepaths.length ? "Reloading" : "Loading");
 
-  // "restart" is a special action keyword
-  // watch(config_path, 'restart');
   fs.readFile(argv.config, 'utf8', function (err, data) {
     if (err) logger.error(err);
 

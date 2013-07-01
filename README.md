@@ -1,17 +1,15 @@
 # less-watch
 
-Node process to monitor changes to specified files or directories, and execute
+Node.js process to monitor changes to specified files or directories, and execute
 some specified action in response.
 
-Settings are stored in `~/.less-watch`
+`less-watch` accepts two command line arguments:
 
-If some file does not exist, the script will continue to try the other files,
-and retry any inaccessible file every 60 seconds. I do a lot of development on
-remote servers, so the files are only accessible when I have sshfs connected,
-but I don't want to have to run something to tell my LESS compiler that it
-should retry the filepath in question.
-
-(This particular feature is not actually in 0.0.2, by the way. It's planned.)
+* `--config` where to read which files to watch.
+    - By default, less-watch reads settings from `~/.less-watch`, i.e., from the user's home directory.
+    - But the location of this file can be specified using this command line flag, e.g., `--config /opt/local/watching`.
+* `--log` where to write the log file.
+    - Defaults to `~/Library/Logs/less-watch.log` (which can easily be viewed with Console.app)
 
 ## Installation
 
@@ -42,6 +40,14 @@ The command on the right will have the following keywords available:
 
     /Users/chbrown/work/mailmaster/static/css/site.less: cd {dirname} && lessc -C site.less site.css
     /Volumes/sshfs_drive/app4/static/*.less: cd {dirname} && lessc -C {basename}.less {basename}.css
+
+## TODO
+
+* If some file does not exist, the script will continue to try the other files,
+and should retry any inaccessible file every 60 seconds. I do a lot of development on
+remote servers, so the files are only accessible when I have sshfs connected,
+but I don't want to have to run something to tell my LESS compiler that it
+should retry the filepath in question.
 
 ## License
 
