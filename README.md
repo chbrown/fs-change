@@ -1,22 +1,22 @@
-# less-watch
+# fs-change
 
 Node.js process to monitor changes to specified files or directories, and execute
 some specified action in response.
 
-`less-watch` accepts two command line arguments:
+`fs-change` accepts two command line arguments:
 
 * `--config` where to read which files to watch.
-    - By default, less-watch reads settings from `~/.less-watch`, i.e., from the user's home directory.
+    - By default, fs-change reads settings from `~/.fs-change`, i.e., from the user's home directory.
     - But the location of this file can be specified using this command line flag, e.g., `--config /opt/local/watching`.
 * `--log` where to write the log file.
-    - Defaults to `~/Library/Logs/less-watch.log` (which can easily be viewed with Console.app)
+    - Defaults to `~/Library/Logs/fs-change.log` (which can easily be viewed with Console.app)
 
 ## Installation
 
 For Mac OS X:
 
     # cd into this directory
-    touch ~/.less-watch
+    touch ~/.fs-change
     ./install
 
 This will add the `LessWatch.app` application to the list of applications in your "login items,"
@@ -24,7 +24,7 @@ so that it gets started automatically.
 
 After running `./install`, either restart your computer or double click `LessWatch.app`.
 
-## `~/.less-watch` format
+## `~/.fs-change` format
 
 Each line has a glob (or simple file) on the left of a colon, and a command on
 the right.
@@ -36,7 +36,7 @@ The command on the right will have the following keywords available:
 - {basename}, the shortname of {file}, without path or extension.
 - {dirname}, the directory containing {file}.
 
-## `~/.less-watch` example
+## `~/.fs-change` example
 
     /Users/chbrown/work/mailmaster/static/css/site.less: cd {dirname} && lessc -C site.less site.css
     /Volumes/sshfs_drive/app4/static/*.less: cd {dirname} && lessc -C {basename}.less {basename}.css

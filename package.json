@@ -1,8 +1,8 @@
 {
-  "name": "less-watch",
+  "name": "fs-change",
   "version": "0.1.0",
   "description": "Monitor changes to specified files or directories, run arbitrary scripts in response.",
-  "homepage": "http://github.com/chbrown/less-watch",
+  "homepage": "http://github.com/chbrown/fs-change",
   "keywords": [
     "child_process",
     "restart",
@@ -12,17 +12,19 @@
   ],
   "repository": {
     "type": "git",
-    "url": "http://github.com/chbrown/less-watch.git"
+    "url": "http://github.com/chbrown/fs-change.git"
   },
   "author": "Christopher Brown <io@henrian.com>",
   "license": "MIT",
-  "main": "./less-watch",
-  "bin": "./less-watch",
+  "bin": {
+    "fs-change": "index.js"
+  },
   "dependencies": {
     "async": "*",
     "glob": "*",
     "optimist": "*",
     "winston": "*",
+    "winston-notification-center": "*",
     "underscore": "*"
   }
 }

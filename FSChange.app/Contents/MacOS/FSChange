@@ -1,4 +1,4 @@
 #!/bin/sh
 PATH=$HOME/bin:/usr/local/sbin:/usr/local/bin:$PATH
 cd $(dirname $0)
-../../../less-watch
+../../../index.js
