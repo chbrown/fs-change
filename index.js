@@ -80,14 +80,14 @@ function install() {
 
   child_process.exec(command, function (error, stdout, stderr) {
     if (error) {
-      console.error([
+      logger.error([
         'Install failed: ' + error,
         '  stdout: ' + stdout,
         '  stderr: ' + stderr,
       ].join('\n'));
     }
     else {
-      console.log([
+      logger.info([
         'Installed Successfully.',
         'To uninstall, go to System Preferences -> ',
         '  Users & Groups -> ',
@@ -125,7 +125,10 @@ function start(opts) {
 
 function main() {
   var optimist = require('optimist')
-    .usage('Usage: fs-change [options]')
+    .usage([
+      'Usage: fs-change [options]',
+      '   or: fs-change install',
+    ].join('\n'))
     .describe({
       config: 'configuration file',
       log: 'log file',
@@ -145,17 +148,17 @@ function main() {
 
   if (argv.help) {
     optimist.showHelp();
-    process.exit(0);
   }
   else if (argv.version) {
     var package_json_path = path.join(__dirname, 'package.json');
     fs.readFile(package_json_path, 'utf8', function(err, data) {
       console.log(JSON.parse(data).version);
-      process.exit(0);
     });
   }
+  else if (argv._.length && argv._[0] == 'install') {
+    install(argv);
+  }
   else {
-
     if (argv.log) {
       logger.add(logger.transports.File, {filename: argv.log});
     }
