@@ -17,12 +17,12 @@ For Mac OS X:
 
     # cd into this directory
     touch ~/.fs-change
-    ./install
+    ./index.js install
 
-This will add the `LessWatch.app` application to the list of applications in your "login items,"
+This will add the `FSChange.app` application to the list of applications in your "login items,"
 so that it gets started automatically.
 
-After running `./install`, either restart your computer or double click `LessWatch.app`.
+After running `./index.js install`, either restart your computer or double click `FSChange.app`.
 
 ## `~/.fs-change` format
 
