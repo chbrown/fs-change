@@ -150,10 +150,7 @@ function main() {
     optimist.showHelp();
   }
   else if (argv.version) {
-    var package_json_path = path.join(__dirname, 'package.json');
-    fs.readFile(package_json_path, 'utf8', function(err, data) {
-      console.log(JSON.parse(data).version);
-    });
+    console.log(require('./package').version);
   }
   else if (argv._.length && argv._[0] == 'install') {
     install(argv);
