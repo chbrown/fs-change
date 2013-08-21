@@ -17,7 +17,7 @@
   "author": "Christopher Brown <io@henrian.com>",
   "license": "MIT",
   "bin": {
-    "fs-change": "index.js"
+    "fs-change": "bin/fs-change.js"
   },
   "dependencies": {
     "async": "*",

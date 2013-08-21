@@ -1,3 +1,3 @@
-#!/bin/sh
-PATH=/usr/local/bin:$PATH
-$(dirname "$0")/../../../index.js --osx
+#!/usr/bin/env PATH=/usr/local/bin:/usr/bin:$PATH node
+var fs_change = require('../../..');
+fs_change.watch(fs_change.defaults.config, fs_change.defaults.log, true);

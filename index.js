@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 'use strict'; /*jslint node: true, es5: true, indent: 2 */
 var _ = require('underscore');
 var async = require('async');
@@ -71,7 +70,12 @@ function readConfig(config_path, callback) {
   });
 }
 
-function install() {
+var defaults = exports.defaults = {
+  config: path.join(process.env.HOME, '.fs-change'),
+  log: path.join(process.env.HOME, 'Library', 'Logs', 'fs-change.log'),
+};
+
+var install = exports.install = function() {
   var app_path = path.join(__dirname, 'FSChange.app');
   // command from http://hints.macworld.com/article.php?story=20111226075701552
   var command = "osascript -e 'tell application \"System Events\" " +
@@ -96,10 +100,10 @@ function install() {
       ].join('\n'));
     }
   });
-}
+};
 
-function start(opts) {
-  readConfig(opts.config, function(err, file_actions) {
+function loop(config) {
+  readConfig(config, function(err, file_actions) {
     if (err) {
       logger.error(err.toString());
       process.exit(1);
@@ -109,64 +113,34 @@ function start(opts) {
       // file_actions.forEach(function(file_action) {
       //   file_action.start();
       // });
-      var config_watcher = fs.watch(opts.config);
+      var config_watcher = fs.watch(config);
       var restart = function(event) {
-        logger.info('Config ' + event + 'd: ' + opts.config);
+        logger.info('Config ' + event + 'd: ' + config);
         logger.info('Stopping ' + file_actions.length + ' watchers');
         _.invoke(file_actions, 'stop');
         // file_actions.forEach(function(file_action) { file_action.close(); });
 
-        start(opts);
+        loop(config);
       };
       config_watcher.on('change', _.debounce(restart, 2000, true));
     }
   });
 }
 
-function main() {
-  var optimist = require('optimist')
-    .usage([
-      'Usage: fs-change [options]',
-      '   or: fs-change install',
-    ].join('\n'))
-    .describe({
-      config: 'configuration file',
-      log: 'log file',
-      osx: 'use the notification center',
-      help: 'print this help message',
-      verbose: 'print extra output',
-      version: 'print version',
-    })
-    .demand(['config'])
-    .boolean(['help', 'verbose', 'version', 'osx'])
-    .default({
-      config: path.join(process.env.HOME, '.fs-change'),
-      log: path.join(process.env.HOME, 'Library', 'Logs', 'fs-change.log'),
-    });
-
-  var argv = optimist.argv;
-
-  if (argv.help) {
-    optimist.showHelp();
+var watch = exports.watch = function(config, log, osx) {
+  if (log) {
+    logger.add(logger.transports.File, {filename: log});
   }
-  else if (argv.version) {
-    console.log(require('./package').version);
-  }
-  else if (argv._.length && argv._[0] == 'install') {
-    install(argv);
-  }
-  else {
-    if (argv.log) {
-      logger.add(logger.transports.File, {filename: argv.log});
-    }
-    if (argv.osx) {
-      var NotificationCenterTransport = require('winston-notification-center');
-      logger.add(NotificationCenterTransport, {title: 'File system watcher'});
-    }
 
-    logger.info('Starting.');
-    start(argv);
+  if (osx) {
+    var NotificationCenterTransport = require('winston-notification-center');
+    logger.add(NotificationCenterTransport, {title: 'File system watcher'});
   }
-}
 
-if (require.main === module) { main(); }
+  loop(config);
+};
+
+process.on('uncaughtException', function(err) {
+  logger.error(err.stack);
+  process.exit(1);
+});
