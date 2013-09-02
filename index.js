@@ -1,4 +1,4 @@
-'use strict'; /*jslint node: true, es5: true, indent: 2 */
+'use strict'; /*jslint es5: true, node: true, indent: 2 */
 var _ = require('underscore');
 var async = require('async');
 var child_process = require('child_process');
@@ -34,17 +34,23 @@ FileAction.prototype.change = function(event, filename) {
   // if (curr.mtime.valueOf() != prev.mtime.valueOf() ||
   //   curr.ctime.valueOf() != prev.ctime.valueOf()) {
   logger.info(this.command);
-  child_process.exec(this.command, function (err, stdout, stderr) {
-    if (err) logger.error(err);
-    if (stdout) logger.debug('stdout: ' + stdout);
-    if (stderr) logger.debug('stderr: ' + stdout);
+  child_process.exec(this.command, function(err, stdout, stderr) {
+    if (err) {
+      logger.error('child_process.exec error', err);
+    }
+    if (stdout) {
+      logger.info('stdout: ' + stdout.toString());
+    }
+    if (stderr) {
+      logger.info('stderr: ' + stderr.toString());
+    }
   });
 };
 
 function readConfig(config_path, callback) {
   // callback signature: function(err, files) - files is an Array of FileAction objects
   logger.info('Reading config: ' + config_path);
-  fs.readFile(config_path, 'utf8', function (err, data) {
+  fs.readFile(config_path, 'utf8', function(err, data) {
     if (err) return callback(err);
 
     var lines = data.trim().split(/\n+/g);
@@ -82,10 +88,11 @@ var install = exports.install = function() {
       "to make login item at end with properties " +
       "{path:\"" + app_path + "\", hidden:false}'";
 
-  child_process.exec(command, function (error, stdout, stderr) {
-    if (error) {
+  logger.info('Installing app "%s" to System Events', app_path);
+  child_process.exec(command, function(err, stdout, stderr) {
+    if (err) {
       logger.error([
-        'Install failed: ' + error,
+        'Install failed: ' + err,
         '  stdout: ' + stdout,
         '  stderr: ' + stderr,
       ].join('\n'));
@@ -141,6 +148,6 @@ var watch = exports.watch = function(config, log, osx) {
 };
 
 process.on('uncaughtException', function(err) {
-  logger.error(err.stack);
+  logger.error(err.stack, {source: 'process.uncaughtException', error: err});
   process.exit(1);
 });
