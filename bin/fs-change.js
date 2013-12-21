@@ -21,9 +21,11 @@ var optimist = require('optimist')
   })
   .demand(['config'])
   .boolean(['help', 'verbose', 'version', 'osx'])
+  .alias({verbose: 'v'})
   .default(fs_change.defaults);
 
 var argv = optimist.argv;
+logger.level = argv.verbose ? 'debug' : 'info';
 
 if (argv.help) {
   optimist.showHelp();
@@ -35,5 +37,5 @@ else if (argv._.length && argv._[0] == 'install') {
   fs_change.install();
 }
 else {
-  fs_change.watch(argv.config, argv.log, argv.osx);
+  fs_change.run(argv.config, {logfile: argv.log, osx: argv.osx});
 }

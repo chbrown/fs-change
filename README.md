@@ -44,10 +44,11 @@ The command on the right will have the following keywords available:
 ## TODO
 
 * If some file does not exist, the script will continue to try the other files,
-and should retry any inaccessible file every 60 seconds. I do a lot of development on
-remote servers, so the files are only accessible when I have sshfs connected,
-but I don't want to have to run something to tell my LESS compiler that it
-should retry the filepath in question.
+  and should retry any inaccessible file every 60 seconds. I do a lot of development on
+  remote servers, so the files are only accessible when I have sshfs connected,
+  but I don't want to have to run something to tell my LESS compiler that it
+  should retry the filepath in question.
+* Add documentation for macro syntax (`& /regex/flags/ => replacement`)
 
 ## License
 

@@ -1,80 +1,14 @@
 'use strict'; /*jslint es5: true, node: true, indent: 2 */
 var _ = require('underscore');
-var async = require('async');
 var child_process = require('child_process');
-var fs = require('fs');
-var glob = require('glob');
+// var winston = require('winston');
+// var logger = new winston.Logger({transports: [new winston.transports.Console()]});
 var logger = require('winston');
 var path = require('path');
 
-function FileAction(filepath, command_template) {
-  this.filepath = filepath;
-  // for each file, interpolate its command
-  var ctx = {
-    file: filepath,
-    extname: path.extname(filepath),
-    basename: path.basename(filepath, path.extname(filepath)),
-    dirname: path.dirname(filepath)
-  };
-  this.command = command_template.replace(/\{(.+?)\}/g, function(full_match, group_1) {
-    return ctx[group_1];
-  });
-}
-FileAction.prototype.start = function() {
-  // debounce for a period of 2s, but execute on the immediate end
-  this.fs_watcher = fs.watch(this.filepath, _.debounce(this.change.bind(this), 2000, true));
-};
-FileAction.prototype.stop = function() {
-  this.fs_watcher.close();
-};
-FileAction.prototype.change = function(event, filename) {
-  // filename may not actually be supplied
-  logger.verbose('Saw ' + event + ' on ' + this.filepath);
-  // TODO: check last modified stats?
-  // if (curr.mtime.valueOf() != prev.mtime.valueOf() ||
-  //   curr.ctime.valueOf() != prev.ctime.valueOf()) {
-  logger.info(this.command);
-  child_process.exec(this.command, function(err, stdout, stderr) {
-    if (err) {
-      logger.error('child_process.exec error', err);
-    }
-    if (stdout) {
-      logger.info('stdout: ' + stdout.toString());
-    }
-    if (stderr) {
-      logger.info('stderr: ' + stderr.toString());
-    }
-  });
-};
+var config = require('./lib/config');
+var FileWatcher = require('./lib').FileWatcher;
 
-function readConfig(config_path, callback) {
-  // callback signature: function(err, files) - files is an Array of FileAction objects
-  logger.info('Reading config: ' + config_path);
-  fs.readFile(config_path, 'utf8', function(err, data) {
-    if (err) return callback(err);
-
-    var lines = data.trim().split(/\n+/g);
-    logger.debug('Globbing ' + lines.length + ' patterns');
-
-    // we have a bunch of globs, we want to flatmap them all to a list of filepaths
-    async.map(lines, function(line, callback) {
-      var parts = line.match(/^(.+?):(.+)$/);
-      var pattern = parts[1].trim();
-      var command = parts[2].trim();
-      glob(pattern, function(err, filepaths) {
-        // for single files, filepaths will just be one file: the exact match
-        callback(err, filepaths.map(function(filepath) {
-          // zip up each filepath with the command that goes with its glob
-          return new FileAction(filepath, command);
-        }));
-      });
-    }, function(err, fileactionss) {
-      var fileactions = _.flatten(fileactionss);
-      logger.debug('Created ' + fileactions.length + ' FileActions');
-      callback(err, fileactions);
-    });
-  });
-}
 
 var defaults = exports.defaults = {
   config: path.join(process.env.HOME, '.fs-change'),
@@ -91,60 +25,54 @@ var install = exports.install = function() {
   logger.info('Installing app "%s" to System Events', app_path);
   child_process.exec(command, function(err, stdout, stderr) {
     if (err) {
-      logger.error([
+      return logger.error([
         'Install failed: ' + err,
         '  stdout: ' + stdout,
         '  stderr: ' + stderr,
       ].join('\n'));
     }
-    else {
-      logger.info([
-        'Installed Successfully.',
-        'To uninstall, go to System Preferences -> ',
-        '  Users & Groups -> ',
-        '  Login Items -> ',
-        '  select "FSChange" and click "-".',
-      ].join('\n'));
-    }
+
+    logger.info([
+      'Installed Successfully.',
+      'To uninstall, go to System Preferences -> ',
+      '  Users & Groups -> ',
+      '  Login Items -> ',
+      '  select "FSChange" and click "-".',
+    ].join('\n'));
   });
 };
 
-function loop(config) {
-  readConfig(config, function(err, file_actions) {
-    if (err) {
-      logger.error(err.toString());
-      process.exit(1);
-    }
-    else {
-      _.invoke(file_actions, 'start');
-      // file_actions.forEach(function(file_action) {
-      //   file_action.start();
-      // });
-      var config_watcher = fs.watch(config);
-      var restart = function(event) {
-        logger.info('Config ' + event + 'd: ' + config);
-        logger.info('Stopping ' + file_actions.length + ' watchers');
-        _.invoke(file_actions, 'stop');
-        // file_actions.forEach(function(file_action) { file_action.close(); });
-
-        loop(config);
-      };
-      config_watcher.on('change', _.debounce(restart, 2000, true));
-    }
-  });
-}
-
-var watch = exports.watch = function(config, log, osx) {
-  if (log) {
-    logger.add(logger.transports.File, {filename: log});
+exports.run = function(config_filepath, opts) {
+  opts = _.extend({logfile: false, osx: false}, opts);
+  if (opts.logfile) {
+    logger.add(logger.transports.File, {filename: opts.logfile});
   }
 
-  if (osx) {
+  if (opts.osx) {
     var NotificationCenterTransport = require('winston-notification-center');
     logger.add(NotificationCenterTransport, {title: 'File system watcher'});
   }
 
-  loop(config);
+  var file_watchers = [];
+  var restart = function() {
+    logger.debug('Stopping %d FileWatchers', file_watchers.length);
+    _.invoke(file_watchers, 'stop');
+    file_watchers.length = 0;
+    config.read(config_filepath, function(err, new_file_watchers) {
+      if (err) {
+        logger.error('Error reading config: %s', err);
+        process.exit(1);
+      }
+
+      Array.prototype.push.apply(file_watchers, new_file_watchers);
+
+      logger.debug('Starting %d FileWatchers', file_watchers.length);
+      _.invoke(file_watchers, 'start');
+    });
+  };
+
+  var config_watcher = new FileWatcher(config_filepath, restart, {delay: 2000, autostart: true});
+  restart();
 };
 
 process.on('uncaughtException', function(err) {
