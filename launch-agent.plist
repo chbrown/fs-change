@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>npmjs.fs-change</string>
+    <key>ProgramArguments</key>
+    <array>
+      <string>fs-change</string>
+      <string>service</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>EnvironmentVariables</key>
+    <dict>
+      <key>OSX</key>
+      <string>TRUE</string>
+      <key>PATH</key>
+      <string>/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+    <key>StandardErrorPath</key>
+    <string>${HOME}/Library/Logs/fs-change.log</string>
+    <key>StandardOutPath</key>
+    <string>${HOME}/Library/Logs/fs-change.log</string>
+  </dict>
+</plist>

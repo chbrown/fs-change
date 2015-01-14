@@ -2,7 +2,6 @@
   "name": "fs-change",
   "version": "0.4.0",
   "description": "Monitor changes to specified files or directories, run arbitrary scripts in response.",
-  "homepage": "http://github.com/chbrown/fs-change",
   "keywords": [
     "child_process",
     "restart",
@@ -10,21 +9,22 @@
     "changes",
     "development"
   ],
+  "homepage": "http://github.com/chbrown/fs-change",
   "repository": {
     "type": "git",
     "url": "http://github.com/chbrown/fs-change.git"
   },
   "author": "Christopher Brown <io@henrian.com>",
   "license": "MIT",
-  "bin": {
-    "fs-change": "bin/fs-change.js"
-  },
   "dependencies": {
-    "async": "*",
-    "glob": "*",
-    "optimist": "*",
-    "winston": "*",
-    "winston-notification-center": "*",
-    "underscore": "*"
+    "async": "~0.9.0",
+    "glob": "~4.3.4",
+    "winston": "~0.8.3",
+    "winston-notification-center": "~0.2.0",
+    "underscore": "~1.7.0",
+    "util-enhanced": "~0.1.1"
+  },
+  "bin": {
+    "fs-change": "bin/fs-change"
   }
 }

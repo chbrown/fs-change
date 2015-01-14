@@ -1,45 +1,61 @@
 # fs-change
 
-Node.js process to monitor changes to specified files or directories, and execute
-some specified action in response.
+Monitor files or directories and execute actions in response to changes.
 
-`fs-change` accepts two command line arguments:
+File watchers and triggered actions are specified in a single file.
 
-* `--config` where to read which files to watch.
-    - By default, fs-change reads settings from `~/.fs-change`, i.e., from the user's home directory.
-    - But the location of this file can be specified using this command line flag, e.g., `--config /opt/local/watching`.
-* `--log` where to write the log file.
-    - Defaults to `~/Library/Logs/fs-change.log` (which can easily be viewed with Console.app)
 
-## Installation
+## Watch file format
 
-For Mac OS X:
-
-    # cd into this directory
-    touch ~/.fs-change
-    ./index.js install
-
-This will add the `FSChange.app` application to the list of applications in your "login items,"
-so that it gets started automatically.
-
-After running `./index.js install`, either restart your computer or double click `FSChange.app`.
-
-## `~/.fs-change` format
+The location of this file defaults to `~/.fs-change`.
 
 Each line has a glob (or simple file) on the left of a colon, and a command on
 the right.
 
 The command on the right will have the following keywords available:
 
-- {file}, the fullpath of the matching file (usually just the string to the left
-  of the colon).
-- {basename}, the shortname of {file}, without path or extension.
-- {dirname}, the directory containing {file}.
+- `{file}`, the fullpath of the matching file (usually just the string to the
+  left of the colon).
+- `{basename}`, the shortname of {file}, without path or extension.
+- `{dirname}`, the directory containing {file}.
 
-## `~/.fs-change` example
+Example:
 
     /Users/chbrown/work/mailmaster/static/css/site.less: cd {dirname} && lessc -C site.less site.css
     /Volumes/sshfs_drive/app4/static/*.less: cd {dirname} && lessc -C {basename}.less {basename}.css
+
+
+## Configuration
+
+The following environment variables can be used to configure the behavior of
+the file listener.
+
+* `OSX` [default: unset]
+
+  If set, fs-change will log to the NotificationCenter as well as STDOUT/STDERR.
+
+* `CONFIG` [default: '~/.fs-change']
+
+  Specify the path to the configuration file specifying the files to watch.
+
+* `DEBUG` [default: unset]
+
+  If set, fs-change will set the log level to DEBUG.
+
+
+## Installation
+
+    fs-change print-launch-agent > ~/Library/LaunchAgents/npmjs.fs-change.plist
+    launchctl load ~/Library/LaunchAgents/npmjs.fs-change.plist
+
+The generated LaunchAgent will log to `~/Library/Logs/fs-change.log`, which
+you can view in `Console.app`.
+
+To uninstall:
+
+    launchctl unload ~/Library/LaunchAgents/npmjs.fs-change.plist
+    rm ~/Library/LaunchAgents/npmjs.fs-change.plist
+
 
 ## TODO
 
@@ -50,6 +66,7 @@ The command on the right will have the following keywords available:
   should retry the filepath in question.
 * Add documentation for macro syntax (`& /regex/flags/ => replacement`)
 
+
 ## License
 
-Copyright © 2012–2013 Christopher Brown. [MIT Licensed](LICENSE).
+Copyright 2012-2015 Christopher Brown. [MIT Licensed](http://opensource.org/licenses/MIT).

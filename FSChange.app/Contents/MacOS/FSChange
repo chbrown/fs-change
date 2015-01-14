@@ -1,3 +1,0 @@
-#!/usr/bin/env PATH=/usr/local/bin:/usr/bin:$PATH node
-var fs_change = require('../../..');
-fs_change.run(fs_change.defaults.config, {logfile: fs_change.defaults.log, osx: true});

@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+/*jslint node: true */
+var command = process.argv[2];
+
+if (command == 'print-launch-agent') {
+  require('../commands/print-launch-agent');
+}
+else if (command == 'service') {
+  require('../commands/service');
+}
+else {
+  console.error('Unrecognized command: %s', command);
+  console.error('  Available commands: print-launch-agent, service');
+  process.exit(1);
+}
