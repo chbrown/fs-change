@@ -5,7 +5,7 @@ var path = require('path');
 var filepath = path.join(__dirname, '..', 'launch-agent.plist');
 var template = fs.readFileSync(filepath, {encoding: 'utf8'});
 
-var string = template.replace(/\$\{(\w+)\}/g, function(match, group, index) {
+var string = template.replace(/\$\{(\w+)\}/g, function(match, group) {
   return process.env[group];
 });
 

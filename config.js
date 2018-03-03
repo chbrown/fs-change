@@ -1,4 +1,3 @@
-/*jslint node: true */
 var _ = require('underscore');
 var async = require('async');
 var child_process = require('child_process');
@@ -28,14 +27,14 @@ function parseConfig(file_contents) {
   var lines = file_contents.split(/\n/g);
 
   logger.debug('Parsing config file (%d lines)', lines.length);
-  lines.forEach(function(line, callback) {
+  lines.forEach(function(line) {
     // macros look like:
     // & /regex/flags => substition
     var macro_match = line.match(/^& \/([^\/]+)\/(\w*) => (.+)$/);
     if (macro_match) {
       var macro = {
         regex: new RegExp(macro_match[1], macro_match[2]),
-        replacement: macro_match[3]
+        replacement: macro_match[3],
       };
       logger.debug('Adding macro: %s => %s', macro.regex, macro.replacement);
       macros.push(macro);
@@ -58,7 +57,7 @@ function parseConfig(file_contents) {
         if (glob_template_match) {
           var glob_template = {
             glob: glob_template_match[1],
-            template: glob_template_match[2]
+            template: glob_template_match[2],
           };
           logger.debug('Adding glob-template: %s => %s', glob_template.glob, glob_template.template);
           glob_templates.push(glob_template);
@@ -79,7 +78,7 @@ function parseConfig(file_contents) {
 Read the watch file config from config_filepath, parse it, and return a list of
 inactive FileWatchers.
 */
-exports.loadFileWatchers = function(config_filepath, callback) {
+function loadFileWatchers(config_filepath, callback) {
   logger.info('Reading config: %s', config_filepath);
   fs.readFile(config_filepath, {encoding: 'utf8'}, function(err, data) {
     if (err) return callback(err);
@@ -110,7 +109,7 @@ exports.loadFileWatchers = function(config_filepath, callback) {
           file: filepath,
           extname: path.extname(filepath),
           basename: path.basename(filepath, path.extname(filepath)),
-          dirname: path.dirname(filepath)
+          dirname: path.dirname(filepath),
         };
         var command = filepath_template.template.replace(/\{(.+?)\}/g, function(full_match, group_1) {
           // if this isn't one of the keys in ctx, reproduce it literally
@@ -123,4 +122,5 @@ exports.loadFileWatchers = function(config_filepath, callback) {
       callback(null, file_watchers);
     });
   });
-};
+}
+exports.loadFileWatchers = loadFileWatchers;

@@ -1,5 +1,3 @@
-/*jslint node: true */
-var util = require('util-enhanced');
 var fs = require('fs');
 var logger = require('winston');
 
@@ -30,7 +28,7 @@ FileWatcher.prototype.start = function() {
   var last_called = -1;
 
   this.fs_watcher = fs.watch(this.filepath, {persistent: true})
-  .on('change', function(event, filename) {
+  .on('change', function(event) { // (event, filename) =>
     // filename may not actually be supplied
     // TODO: check last modified stats?
     // if (curr.mtime.valueOf() != prev.mtime.valueOf() ||

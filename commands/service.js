@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-var path = require('path');
-var child_process = require('child_process');
 var _ = require('underscore');
 var logger = require('winston');
 
@@ -17,7 +15,7 @@ logger.level = process.env.DEBUG ? 'debug' : 'info';
 var config_filepath = (process.env.CONFIG || '~/.fs-change').replace(/^~/, process.env.HOME);
 
 var file_watchers = [];
-var restart = function() {
+function restart() {
   logger.debug('Stopping %d FileWatchers', file_watchers.length);
   _.invoke(file_watchers, 'stop');
   file_watchers.length = 0;
@@ -32,7 +30,7 @@ var restart = function() {
     logger.debug('Starting %d FileWatchers', file_watchers.length);
     _.invoke(file_watchers, 'start');
   });
-};
+}
 
 var config_watcher = new FileWatcher(config_filepath, 2000, restart);
 config_watcher.start();
