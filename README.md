@@ -1,5 +1,7 @@
 # fs-change
 
+[![latest version published to npm](https://badge.fury.io/js/fs-change.svg)](https://www.npmjs.com/package/fs-change)
+
 Monitor files or directories and execute actions in response to changes.
 
 File watchers and triggered actions are specified in a single file.
@@ -70,4 +72,5 @@ To uninstall:
 
 ## License
 
-Copyright 2012-2015 Christopher Brown. [MIT Licensed](http://opensource.org/licenses/MIT).
+Copyright 2012-2015 Christopher Brown.
+[MIT Licensed](https://chbrown.github.io/licenses/MIT/#2012-2015).
